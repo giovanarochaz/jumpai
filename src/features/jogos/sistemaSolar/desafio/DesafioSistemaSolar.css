@@ -1,0 +1,102 @@
+/* DesafioSistemaSolar.css */
+
+@keyframes mover {
+  from { right: 0; opacity: 1; }
+  to { right: 100vw; opacity: 0; }
+}
+
+@keyframes piscar {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+@keyframes explode {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0.5); }
+}
+
+.container-sistema-solar {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #0a1c3c, #132b62);
+}
+
+.painel-planetas {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  z-index: 10;
+}
+
+.icone-planeta {
+  width: 60px;
+  height: 60px;
+  opacity: 0.3;
+  filter: drop-shadow(0 0 2px white);
+  transition: opacity 0.3s;
+}
+
+.icone-planeta.ativo {
+  opacity: 1;
+}
+
+.estrela {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background-color: white;
+  border-radius: 50%;
+  animation: piscar 2s infinite ease-in-out;
+}
+
+.astronauta {
+  position: absolute;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  transform: translateX(-50%);
+  transition: top 1.8s ease;
+}
+
+.astronauta img {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.bolinha {
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  animation: mover 5s linear forwards;
+}
+
+.bolinha img {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.particula {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: yellow;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: explode 1s ease-out forwards;
+}
