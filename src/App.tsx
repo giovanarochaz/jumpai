@@ -13,22 +13,26 @@ import netuno from './images/jogos/sistemaSolar/netuno.png';
 const styleSheet = document.createElement('style');
 styleSheet.innerHTML = `
 @keyframes mover {
-  from {
-    right: 0;
-    opacity: 1;
-  }
-  to {
-    right: 100vw;
-    opacity: 0;
-  }
+  from { right: 0; opacity: 1; }
+  to { right: 100vw; opacity: 0; }
 }
-
 @keyframes piscar {
   0%, 100% { opacity: 0.2; }
   50% { opacity: 1; }
 }
+@keyframes explode {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x), var(--y)) scale(0.5);
+  }
+}
 `;
 document.head.appendChild(styleSheet);
+
 interface Estrela {
   id: number;
   top: number;
@@ -53,23 +57,22 @@ const imagensPlanetas = [
   { nome: 'Netuno', imagem: netuno },
 ];
 
-
-const BolaControlada: React.FC = () => {  
+const BolaControlada: React.FC = () => {
   const [posY, setPosY] = useState<number>(80);
   const [bolinhas, setBolinhas] = useState<BolinhaAnimada[]>([]);
   const [coletados, setColetados] = useState<string[]>([]);
   const [loteAtual, setLoteAtual] = useState<BolinhaAnimada[]>([]);
-  const [loteIndex, setLoteIndex] = useState<number>(0); // Índice para liberar planetas do lote
-  const [estrelas, setEstrelas] = useState<{ id: number; top: number; left: number }[]>([]);
-  const margemTopo = 0.1;
+  const [loteIndex, setLoteIndex] = useState<number>(0);
+  const [estrelas, setEstrelas] = useState<Estrela[]>([]);
+  const [particulas, setParticulas] = useState<{ id: number; x: number; y: number; dx: number; dy: number }[]>([]);
 
+  const margemTopo = 0.1;
   const bolaRef = useRef<HTMLDivElement>(null);
   const bolaWidth = 100;
   const bolaHeight = 100;
   const bolinhaWidth = 40;
   const bolinhaHeight = 40;
   const margemColisao = 5;
-
 
   const verificarColisao = (bolaRect: DOMRect, bolinhaRect: DOMRect) => {
     return (
@@ -88,31 +91,26 @@ const BolaControlada: React.FC = () => {
     }
   };
 
-
-  // Ouvir teclas
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Função para gerar um lote de 5 planetas
   const gerarLotePlanetas = () => {
     const novoLote: BolinhaAnimada[] = [];
-    
+
     for (let i = 0; i < 5; i++) {
-      let planeta: { nome: string, imagem: string };
+      let planeta;
 
       if (i === 0 && coletados.length < imagensPlanetas.length) {
-        // Garantir que o próximo planeta da sequência seja o primeiro do lote
-        const próximoPlanetaNome = imagensPlanetas[coletados.length]?.nome;
-        planeta = imagensPlanetas.find(p => p.nome === próximoPlanetaNome) || imagensPlanetas[Math.floor(Math.random() * imagensPlanetas.length)];
+        const próximo = imagensPlanetas[coletados.length]?.nome;
+        planeta = imagensPlanetas.find(p => p.nome === próximo) || imagensPlanetas[Math.floor(Math.random() * imagensPlanetas.length)];
       } else {
-        // Escolher planeta aleatoriamente para os outros
         planeta = imagensPlanetas[Math.floor(Math.random() * imagensPlanetas.length)];
       }
 
       novoLote.push({
-        id: Date.now() + i,  // id único por planetas no lote
+        id: Date.now() + i,
         top: window.innerHeight * (margemTopo + Math.random() * (1 - 2 * margemTopo)),
         imagem: planeta.imagem,
         nome: planeta.nome,
@@ -122,60 +120,68 @@ const BolaControlada: React.FC = () => {
     return novoLote;
   };
 
-
-  // Função para liberar planetas um por vez a cada 2500ms
   useEffect(() => {
     const intervalo = setInterval(() => {
       if (loteIndex < loteAtual.length) {
         setBolinhas(prev => [...prev, loteAtual[loteIndex]]);
-        setLoteIndex(prev => prev + 1); // Avançar para o próximo planeta do lote
+        setLoteIndex(prev => prev + 1);
       }
-    }, 2500); // Libera um planeta a cada 2500ms
-
+    }, 2500);
     return () => clearInterval(intervalo);
   }, [loteAtual, loteIndex]);
 
-    // Função para reiniciar o ciclo de planetas e gerar um novo lote
   useEffect(() => {
     if (loteIndex >= loteAtual.length) {
-      setLoteAtual(gerarLotePlanetas()); // Gerar novo lote de planetas
-      setLoteIndex(0); // Resetar o índice para liberar planetas do novo lote
+      setLoteAtual(gerarLotePlanetas());
+      setLoteIndex(0);
     }
   }, [loteIndex]);
 
-  // Verificar colisão e coletar planetas
+  const criarParticulas = (x: number, y: number) => {
+    const novas = Array.from({ length: 10 }).map((_, i) => ({
+      id: Date.now() + i,
+      x,
+      y,
+      dx: Math.random() * 40 - 20,
+      dy: Math.random() * 40 - 20,
+    }));
+    setParticulas(prev => [...prev, ...novas]);
+
+    setTimeout(() => {
+      setParticulas(prev => prev.filter(p => !novas.includes(p)));
+    }, 1000);
+  };
+
   useEffect(() => {
     const intervalColisao = setInterval(() => {
       if (bolaRef.current) {
         const bolaRect = bolaRef.current.getBoundingClientRect();
 
         bolinhas.forEach(bolinha => {
-          const bolinhaElement = document.getElementById(`bolinha-${bolinha.id}`);
-          if (bolinhaElement) {
-            const bolinhaRect = bolinhaElement.getBoundingClientRect();
+          const el = document.getElementById(`bolinha-${bolinha.id}`);
+          if (el) {
+            const bolinhaRect = el.getBoundingClientRect();
 
             if (verificarColisao(bolaRect, bolinhaRect)) {
+              criarParticulas(bolinhaRect.left, bolinhaRect.top);
+
               if (!coletados.includes(bolinha.nome)) {
                 const indexDoColetado = imagensPlanetas.findIndex(p => p.nome === bolinha.nome);
-                const indexMaisAltoColetado = Math.max(
+                const indexMaisAlto = Math.max(
                   ...coletados.map(nome => imagensPlanetas.findIndex(p => p.nome === nome)),
                   -1
                 );
 
-                if (indexDoColetado === indexMaisAltoColetado + 1) {
+                if (indexDoColetado === indexMaisAlto + 1) {
                   setColetados(prev => [...prev, bolinha.nome]);
-                  console.log(`✅ Coletado na ordem: ${bolinha.nome}`);
-                } else if (indexDoColetado >= indexMaisAltoColetado) {
-
-                  const novosColetados = coletados.filter(nome => {
+                  console.log(`✅ Coletado: ${bolinha.nome}`);
+                } else if (indexDoColetado >= indexMaisAlto) {
+                  const novos = coletados.filter(nome => {
                     const idx = imagensPlanetas.findIndex(p => p.nome === nome);
                     return idx >= indexDoColetado;
                   });
-
-                  setColetados(novosColetados);
-                  console.log(`⚠️ Fora de ordem: resetando planetas após ${bolinha.nome}`);
-                } else {
-                  console.log(`❌ Precisa coletar ${imagensPlanetas[indexMaisAltoColetado + 1]?.nome} antes.`);
+                  setColetados(novos);
+                  console.log(`⚠️ Ordem errada: resetando após ${bolinha.nome}`);
                 }
               }
 
@@ -189,21 +195,18 @@ const BolaControlada: React.FC = () => {
     return () => clearInterval(intervalColisao);
   }, [bolinhas, coletados]);
 
-
-  // Criar estrelas piscando
   useEffect(() => {
     const criarEstrelas = () => {
-      const novasEstrelas = Array.from({ length: 100 }).map(() => ({
+      const novas = Array.from({ length: 100 }).map(() => ({
         id: Math.random(),
         top: Math.random() * window.innerHeight,
         left: Math.random() * window.innerWidth,
       }));
-      setEstrelas(novasEstrelas);
+      setEstrelas(novas);
     };
 
     criarEstrelas();
-    const intervalo = setInterval(criarEstrelas, 10000); // renovar a cada 10s
-
+    const intervalo = setInterval(criarEstrelas, 10000);
     return () => clearInterval(intervalo);
   }, []);
 
@@ -278,7 +281,7 @@ const BolaControlada: React.FC = () => {
         />
       ))}
 
-      {/* Astronauta controlável */}
+      {/* Astronauta */}
       <div ref={bolaRef} style={bolaStyle}>
         <img
           src={astronautaImg}
@@ -295,7 +298,7 @@ const BolaControlada: React.FC = () => {
         />
       </div>
 
-      {/* Planetas animados (como bolinhas) */}
+      {/* Planetas */}
       {bolinhas.map(b => (
         <div
           key={b.id}
@@ -325,6 +328,28 @@ const BolaControlada: React.FC = () => {
             }}
           />
         </div>
+      ))}
+
+      {/* Partículas de explosão */}
+      {particulas.map(p => (
+        <div
+          key={p.id}
+          style={{
+            position: 'absolute',
+            top: p.y,
+            left: p.x,
+            width: '6px',
+            height: '6px',
+            backgroundColor: 'yellow',
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            animation: 'explode 1s ease-out forwards',
+            transformOrigin: 'center',
+            // Custom props via CSS vars
+            ['--x' as any]: `${p.dx}px`,
+            ['--y' as any]: `${p.dy}px`,
+          }}
+        />
       ))}
     </div>
   );
