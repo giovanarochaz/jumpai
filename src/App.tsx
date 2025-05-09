@@ -22,13 +22,13 @@ styleSheet.innerHTML = `
     opacity: 0;
   }
 }
+
 @keyframes piscar {
   0%, 100% { opacity: 0.2; }
   50% { opacity: 1; }
 }
 `;
 document.head.appendChild(styleSheet);
-
 interface Estrela {
   id: number;
   top: number;
@@ -53,21 +53,23 @@ const imagensPlanetas = [
   { nome: 'Netuno', imagem: netuno },
 ];
 
-const BolaControlada: React.FC = () => {
+
+const BolaControlada: React.FC = () => {  
   const [posY, setPosY] = useState<number>(80);
   const [bolinhas, setBolinhas] = useState<BolinhaAnimada[]>([]);
-  const [estrelas, setEstrelas] = useState<Estrela[]>([]);
   const [coletados, setColetados] = useState<string[]>([]);
   const [loteAtual, setLoteAtual] = useState<BolinhaAnimada[]>([]);
   const [loteIndex, setLoteIndex] = useState<number>(0); // Índice para liberar planetas do lote
-
+  const [estrelas, setEstrelas] = useState<{ id: number; top: number; left: number }[]>([]);
   const margemTopo = 0.1;
+
   const bolaRef = useRef<HTMLDivElement>(null);
   const bolaWidth = 100;
   const bolaHeight = 100;
   const bolinhaWidth = 40;
   const bolinhaHeight = 40;
   const margemColisao = 5;
+
 
   const verificarColisao = (bolaRect: DOMRect, bolinhaRect: DOMRect) => {
     return (
@@ -86,6 +88,8 @@ const BolaControlada: React.FC = () => {
     }
   };
 
+
+  // Ouvir teclas
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -118,6 +122,7 @@ const BolaControlada: React.FC = () => {
     return novoLote;
   };
 
+
   // Função para liberar planetas um por vez a cada 2500ms
   useEffect(() => {
     const intervalo = setInterval(() => {
@@ -130,7 +135,7 @@ const BolaControlada: React.FC = () => {
     return () => clearInterval(intervalo);
   }, [loteAtual, loteIndex]);
 
-  // Função para reiniciar o ciclo de planetas e gerar um novo lote
+    // Função para reiniciar o ciclo de planetas e gerar um novo lote
   useEffect(() => {
     if (loteIndex >= loteAtual.length) {
       setLoteAtual(gerarLotePlanetas()); // Gerar novo lote de planetas
@@ -183,6 +188,24 @@ const BolaControlada: React.FC = () => {
 
     return () => clearInterval(intervalColisao);
   }, [bolinhas, coletados]);
+
+
+  // Criar estrelas piscando
+  useEffect(() => {
+    const criarEstrelas = () => {
+      const novasEstrelas = Array.from({ length: 100 }).map(() => ({
+        id: Math.random(),
+        top: Math.random() * window.innerHeight,
+        left: Math.random() * window.innerWidth,
+      }));
+      setEstrelas(novasEstrelas);
+    };
+
+    criarEstrelas();
+    const intervalo = setInterval(criarEstrelas, 10000); // renovar a cada 10s
+
+    return () => clearInterval(intervalo);
+  }, []);
 
   const containerStyle: CSSProperties = {
     position: 'relative',
