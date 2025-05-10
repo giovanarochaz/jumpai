@@ -1,0 +1,15 @@
+.container-jogos {
+  width: 100vw;
+  height: 100vh;
+  padding: 40px;
+  background-color: #552CB7;
+  position: relative;
+  box-sizing: border-box;
+  color: #f1f1f1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}

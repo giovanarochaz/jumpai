@@ -1,17 +1,25 @@
 import React from 'react';
 import './Home.css';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 import luva from '../../images/home/1.png';
 import olho from '../../images/home/2.png';
 import teclado from '../../images/home/3.png';
 
 const Home: React.FC = () => {
+  const navigate = useNavigate(); // Hook para navegação
+
   const opcoes = [
     { id: 1, nome: 'Luva', imagem: luva },
     { id: 2, nome: 'Olho', imagem: olho },
     { id: 3, nome: 'Teclado', imagem: teclado },
   ];
+
+  // Função que será chamada ao clicar no botão
+  const handleControleClick = (tipoControle: string) => {
+    navigate(`/opcoes-jogos/${tipoControle}`);
+  };
 
   return (
     <motion.div
@@ -30,8 +38,9 @@ const Home: React.FC = () => {
           <motion.div
             key={id}
             className="botao-interativo"
-            whileHover={{ scale: 1.2}}
-            whileTap={{ scale: 1.4}}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 1.4 }}
+            onClick={() => handleControleClick(nome.toLowerCase())} 
           >
             <img
               src={imagem}

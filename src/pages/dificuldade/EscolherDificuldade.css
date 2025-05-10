@@ -1,0 +1,43 @@
+.container-dificuldade {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #552cb7;
+  color: white;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.cards {
+  display: flex;
+  justify-content: space-around;
+  width: 80%;
+  max-width: 1000px;
+}
+
+.card {
+  background-color: #ffcc00;
+  padding: 20px;
+  width: 200px;
+  height: 200px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.card:hover {
+  transform: scale(1.1); /* Efeito de aumentar o card ao passar o mouse */
+  background-color: #ff9900; /* Muda a cor ao passar o mouse */
+}

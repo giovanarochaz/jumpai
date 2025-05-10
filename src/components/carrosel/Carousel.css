@@ -1,0 +1,103 @@
+.carousel-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-button {
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  z-index: 3;
+  transition: color 0.3s ease;
+}
+
+.nav-button:hover {
+  color: #552CB7;
+}
+
+.carousel-wrapper {
+  position: relative;
+  width: 1600px;
+  height: 700px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.carousel-item {
+  position: absolute;
+  width: 500px;
+  height: 600px;
+  margin: 0 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out;
+}
+
+.carousel-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.carousel-content {
+  text-align: center;
+  padding: 20px;
+}
+
+.carousel-image {
+  width: 95%;
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.carousel-image:hover {
+  transform: scale(1.1);
+}
+
+.carousel-title {
+  font-size: 1.8rem;
+  margin-top: 20px;
+  font-weight: bold;
+  color: #552CB7;
+  text-transform: uppercase;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.carousel-description {
+  font-size: 1.2rem;
+  color: #555;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.play-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #552CB7;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 80%;
+}
+
+.play-button:hover {
+  background-color: #4a1f99;
+}
